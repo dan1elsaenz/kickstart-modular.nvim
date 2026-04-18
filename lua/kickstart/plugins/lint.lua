@@ -10,6 +10,8 @@ return {
     lint.linters_by_ft = {
       markdown = { 'markdownlint' }, -- Make sure to install `markdownlint` via mason / npm
     }
+    lint.linters_by_ft['systemverilog'] = { 'verible' }
+    lint.linters_by_ft['python'] = { 'ruff' }
 
     -- To allow other plugins to add linters to require('lint').linters_by_ft,
     -- instead set linters_by_ft like this:

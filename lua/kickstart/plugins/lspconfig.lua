@@ -122,9 +122,30 @@ return {
       --  See `:help lsp-config` for information about keys and how to configure
       ---@type table<string, vim.lsp.Config>
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
+        verible = {
+          cmd = { 'verible-verilog-ls', '--rules_config_search' },
+          filetypes = { 'systemverilog', 'verilog' },
+          root_dir = function(fname)
+            return require('lspconfig.util').root_pattern('.git', 'Makefile', '.rules.verible_lint', '.verible-format')(fname) or vim.fn.getcwd()
+          end,
+          -- on_attach = function(client, bufnr)
+          --   client.server_capabilities.documentFormattingProvider = false
+          --   client.server_capabilities.documentRangeFormattingProvider = false
+          -- end,
+        },
+        svlangserver = {
+          filetypes = { 'verilog', 'systemverilog' },
+          cmd = { 'svlangserver', '--stdio' },
+          capabilities = capabilities,
+          -- on_attach = function(client, bufnr)
+          --   -- Desactivar formatting LSP
+          --   client.server_capabilities.documentFormattingProvider = false
+          --   client.server_capabilities.documentRangeFormattingProvider = false
+          -- end,
+        },
         -- rust_analyzer = {},
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -183,6 +204,28 @@ return {
         vim.lsp.config(name, server)
         vim.lsp.enable(name)
       end
+
+      vim.api.nvim_create_autocmd('BufWritePost', {
+        pattern = '*.v',
+        callback = function() vim.lsp.buf.format { async = false } end,
+      })
+
+      vim.api.nvim_create_autocmd('BufWritePost', {
+        pattern = '*.sv',
+        callback = function() vim.lsp.buf.format { async = false } end,
+      })
+
+      -- Setting the filetype for Verilog
+      vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+        pattern = { '*.v' },
+        command = 'set filetype=verilog',
+      })
+
+      -- Setting the filetype for SystemVerilog
+      vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+        pattern = { '*.sv' },
+        command = 'set filetype=systemverilog',
+      })
     end,
   },
 }
