@@ -136,16 +136,6 @@ return {
           --   client.server_capabilities.documentRangeFormattingProvider = false
           -- end,
         },
-        svlangserver = {
-          filetypes = { 'verilog', 'systemverilog' },
-          cmd = { 'svlangserver', '--stdio' },
-          capabilities = capabilities,
-          -- on_attach = function(client, bufnr)
-          --   -- Desactivar formatting LSP
-          --   client.server_capabilities.documentFormattingProvider = false
-          --   client.server_capabilities.documentRangeFormattingProvider = false
-          -- end,
-        },
         -- rust_analyzer = {},
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -153,8 +143,6 @@ return {
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
-
-        stylua = {}, -- Used to format Lua code
 
         -- Special Lua Config, as recommended by neovim help docs
         lua_ls = {
@@ -196,6 +184,7 @@ return {
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         -- You can add other tools here that you want Mason to install
+        'stylua',
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -205,27 +194,19 @@ return {
         vim.lsp.enable(name)
       end
 
-      vim.api.nvim_create_autocmd('BufWritePost', {
-        pattern = '*.v',
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        pattern = { '*.v', '*.sv', '*.vh', '*.svh' },
         callback = function() vim.lsp.buf.format { async = false } end,
       })
 
-      vim.api.nvim_create_autocmd('BufWritePost', {
-        pattern = '*.sv',
-        callback = function() vim.lsp.buf.format { async = false } end,
-      })
-
-      -- Setting the filetype for Verilog
-      vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-        pattern = { '*.v' },
-        command = 'set filetype=verilog',
-      })
-
-      -- Setting the filetype for SystemVerilog
-      vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-        pattern = { '*.sv' },
-        command = 'set filetype=systemverilog',
-      })
+      vim.filetype.add {
+        extension = {
+          v = 'verilog',
+          vh = 'verilog',
+          sv = 'systemverilog',
+          svh = 'systemverilog',
+        },
+      }
     end,
   },
 }

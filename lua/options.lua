@@ -7,7 +7,7 @@
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -24,12 +24,19 @@ vim.schedule(function() vim.o.clipboard = 'unnamedplus' end)
 -- Enable break indent
 vim.o.breakindent = true
 
+-- Break lines at word boundaries, not mid-word
+vim.o.linebreak = true
+
 -- Enable undo/redo changes even after closing and reopening a file
 vim.o.undofile = true
 
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.o.ignorecase = true
 vim.o.smartcase = true
+
+-- Use tabs for indentation (4 spaces)
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
 
 -- Keep signcolumn on by default
 vim.o.signcolumn = 'yes'
@@ -68,5 +75,15 @@ vim.o.scrolloff = 10
 -- instead raise a dialog asking if you wish to save the current file(s)
 -- See `:help 'confirm'`
 vim.o.confirm = true
+
+-- Line width (visual guide)
+vim.opt.colorcolumn = '80'
+
+-- Compatibility shim: nvim-treesitter.parsers.ft_to_lang was removed in the main branch
+-- Telescope still calls it via require('nvim-treesitter.parsers').ft_to_lang
+local ok, ts_parsers = pcall(require, 'nvim-treesitter.parsers')
+if ok and not ts_parsers.ft_to_lang then
+  ts_parsers.ft_to_lang = vim.treesitter.language.get_lang
+end
 
 -- vim: ts=2 sts=2 sw=2 et

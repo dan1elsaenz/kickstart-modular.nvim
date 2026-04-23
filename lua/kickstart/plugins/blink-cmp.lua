@@ -28,9 +28,25 @@ return {
           --   end,
           -- },
         },
-        opts = {},
+        config = function()
+          local luasnip = require 'luasnip'
+          luasnip.config.setup {
+            store_selection_keys = '<Tab>',
+            enable_autosnippets = true,
+          }
+          require('luasnip.loaders.from_lua').lazy_load { paths = { vim.fn.stdpath 'config' .. '/snippets/LuaSnip' } }
+
+          vim.keymap.set({ 'i', 's' }, '<C-l>', function()
+            if luasnip.expand_or_locally_jumpable() then luasnip.expand_or_jump() end
+          end, { desc = 'LuaSnip expand or jump forward' })
+
+          vim.keymap.set({ 'i', 's' }, '<C-h>', function()
+            if luasnip.locally_jumpable(-1) then luasnip.jump(-1) end
+          end, { desc = 'LuaSnip jump backward' })
+        end,
       },
     },
+
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
