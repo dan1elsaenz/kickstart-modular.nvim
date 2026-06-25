@@ -8,8 +8,7 @@ return {
     branch = 'main',
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter-intro`
     config = function()
-      local ts_install = require 'nvim-treesitter.install'
-      local ok_parsers, ts_parsers = pcall(require, 'nvim-treesitter.parsers')
+      local ts = require 'nvim-treesitter'
 
       ts_install.install {
         'bash',
@@ -23,6 +22,7 @@ return {
         'vim',
         'vimdoc',
       }
+      ts.install(parsers)
       -- associate SystemVerilog filetypes with the Verilog parser
       vim.treesitter.language.register('verilog', { 'systemverilog', 'sv', 'svh' })
 
@@ -42,7 +42,7 @@ return {
         local ok2, query = pcall(vim.treesitter.query.get, language, 'indent')
         if ok2 and query ~= nil then vim.bo[buf].indentexpr = 'nvim_treesitter#indent()' end
       end
-
+      local available_parsers = ts.get_available()
       vim.api.nvim_create_autocmd('FileType', {
         callback = function(args)
           local buf, filetype = args.buf, args.match
@@ -54,13 +54,17 @@ return {
           local language = vim.treesitter.language.get_lang(filetype)
           if not language then return end
 
-          -- pcall to check if the parser binary is installed
-          local parser_ok = pcall(vim.treesitter.language.add, language)
-          if parser_ok then
+          local installed_parsers = ts.get_installed 'parsers'
+
+          if vim.tbl_contains(installed_parsers, language) then
+            -- enable the parser if it is installed
             treesitter_try_attach(buf, language)
           elseif vim.tbl_contains(available_parsers, language) then
             -- install asynchronously; nvim-treesitter will reattach to matching buffers when done
-            ts_install.install(language)
+            ts.install(language)
+          else
+            -- try to enable treesitter features in case the parser exists but is not available from `nvim-treesitter`
+            treesitter_try_attach(buf, language)
           end
         end,
       })
