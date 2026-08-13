@@ -8,9 +8,25 @@ return {
   config = function()
     local lint = require 'lint'
     lint.linters_by_ft = {
-      markdown = { 'markdownlint' }, -- Make sure to install `markdownlint` via mason / npm
+      markdown = { 'markdownlint-cli2' }, -- installed via `brew install markdownlint-cli2`
+    }
+
+    -- nvim-lint has no built-in `verible` linter.
+    lint.linters.verible = {
+      cmd = 'verible-verilog-lint',
+      stdin = false,
+      stream = 'stderr',
+      args = { '--rules_config_search=true' },
+      ignore_exitcode = true,
+      parser = require('lint.parser').from_pattern(
+        '^([^:]+):(%d+):(%d+)%-?(%d*): (.*)$',
+        { 'file', 'lnum', 'col', 'end_col', 'message' },
+        nil,
+        { severity = vim.diagnostic.severity.WARN, source = 'verible' }
+      ),
     }
     lint.linters_by_ft['systemverilog'] = { 'verible' }
+    lint.linters_by_ft['verilog'] = { 'verible' }
     lint.linters_by_ft['python'] = { 'ruff' }
 
     -- To allow other plugins to add linters to require('lint').linters_by_ft,

@@ -126,15 +126,20 @@ return {
         -- gopls = {},
         pyright = {},
         verible = {
-          cmd = { 'verible-verilog-ls', '--rules_config_search' },
+          -- Diagnostics come from nvim-lint (verible-verilog-lint), not this LSP,
+          -- to avoid duplicate diagnostics from both sources.
+          cmd = { 'verible-verilog-ls', '--rules_config_search', '--push_diagnostic_notifications=false' },
           filetypes = { 'systemverilog', 'verilog' },
-          root_dir = function(fname)
-            return require('lspconfig.util').root_pattern('.git', 'Makefile', '.rules.verible_lint', '.verible-format')(fname) or vim.fn.getcwd()
+          root_dir = function(bufnr, on_dir)
+            local fname = vim.api.nvim_buf_get_name(bufnr)
+            local dir = require('lspconfig.util').root_pattern('.git', 'Makefile', '.rules.verible_lint', '.verible-format')(fname) or vim.fn.getcwd()
+            on_dir(dir)
           end,
-          -- on_attach = function(client, bufnr)
-          --   client.server_capabilities.documentFormattingProvider = false
-          --   client.server_capabilities.documentRangeFormattingProvider = false
-          -- end,
+          on_attach = function(client, bufnr)
+            -- Formatting goes through conform (verible-verilog-format), not the LSP.
+            client.server_capabilities.documentFormattingProvider = false
+            client.server_capabilities.documentRangeFormattingProvider = false
+          end,
         },
         -- rust_analyzer = {},
         --
@@ -193,11 +198,6 @@ return {
         vim.lsp.config(name, server)
         vim.lsp.enable(name)
       end
-
-      vim.api.nvim_create_autocmd('BufWritePre', {
-        pattern = { '*.v', '*.sv', '*.vh', '*.svh' },
-        callback = function() vim.lsp.buf.format { async = false } end,
-      })
 
       vim.filetype.add {
         extension = {

@@ -29,8 +29,8 @@ return {
         cpp = { 'clang-format' },
         python = { 'ruff_format' },
         markdown = { 'prettierd' },
-        verilog = { 'verible-verilog-format' },
-        systemverilog = { 'verible-verilog-format' },
+        verilog = { 'verible_verilog_format' },
+        systemverilog = { 'verible_verilog_format' },
       },
       formatters = {
         verible_verilog_format = {
