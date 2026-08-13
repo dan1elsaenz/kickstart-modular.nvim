@@ -5,6 +5,8 @@ local sn = ls.snippet_node
 local i = ls.insert_node
 local f = ls.function_node
 local d = ls.dynamic_node
+local c = ls.choice_node
+local t = ls.text_node
 local fmt = require('luasnip.extras.fmt').fmt
 local fmta = require('luasnip.extras.fmt').fmta
 
@@ -90,6 +92,41 @@ return {
     fmta([[<>`<>`]], {
       f(function(_, snip) return snip.captures[1] end),
       d(1, get_visual),
+    })
+  ),
+
+  -- LINK
+  s(
+    {
+      trig = '([^%a])link',
+      regTrig = true,
+      wordTrig = false,
+      snippetType = 'autosnippet',
+    },
+    fmta([[<>[<>](<>)]], {
+      f(function(_, snip) return snip.captures[1] end),
+      d(1, get_visual),
+      i(2, 'url'),
+    })
+  ),
+
+  -- ADMONITION
+  s(
+    {
+      trig = 'adm',
+      wordTrig = true,
+      snippetType = 'autosnippet',
+      dscr = 'Add admonition block',
+    },
+    fmt('> [!{}]\n> {}', {
+      c(1, {
+        t 'NOTE',
+        t 'TIP',
+        t 'IMPORTANT',
+        t 'WARNING',
+        t 'CAUTION',
+      }),
+      d(2, get_visual),
     })
   ),
 }
