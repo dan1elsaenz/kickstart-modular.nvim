@@ -21,12 +21,10 @@ return {
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function() require('luasnip.loaders.from_vscode').lazy_load() end,
+          },
         },
         config = function()
           local luasnip = require 'luasnip'
@@ -43,6 +41,10 @@ return {
           vim.keymap.set({ 'i', 's' }, '<C-h>', function()
             if luasnip.locally_jumpable(-1) then luasnip.jump(-1) end
           end, { desc = 'LuaSnip jump backward' })
+
+          vim.keymap.set({ 'i', 's' }, '<C-j>', function()
+            if luasnip.choice_active() then luasnip.change_choice(1) end
+          end, { desc = 'LuaSnip next choice' })
         end,
       },
     },
@@ -91,10 +93,10 @@ return {
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets' },
+        default = { 'snippets', 'lsp', 'path' },
       },
 
-      snippets = { preset = 'luasnip' },
+      snippets = { preset = 'luasnip', score_offset = 100 },
 
       -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
       -- which automatically downloads a prebuilt binary when enabled.
