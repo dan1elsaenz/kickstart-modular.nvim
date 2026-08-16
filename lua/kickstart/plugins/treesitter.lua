@@ -10,7 +10,7 @@ return {
     config = function()
       local ts = require 'nvim-treesitter'
 
-      ts_install.install {
+      ts.install {
         'bash',
         'c',
         'html',
@@ -22,11 +22,8 @@ return {
         'vim',
         'vimdoc',
       }
-      ts.install(parsers)
       -- associate SystemVerilog filetypes with the Verilog parser
       vim.treesitter.language.register('verilog', { 'systemverilog', 'sv', 'svh' })
-
-      local available_parsers = ok_parsers and vim.tbl_keys(ts_parsers) or {}
 
       ---@param buf integer
       ---@param language string
